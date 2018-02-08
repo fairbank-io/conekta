@@ -69,10 +69,10 @@ func defaultOptions() *Options {
 	}
 }
 
-// New will construct a usable service handler using the provided API key and
+// NewClient will construct a usable service handler using the provided API key and
 // configuration options, if 'nil' options are provided default sane values will
 // be used
-func New(key string, options *Options) (*Client, error) {
+func NewClient(key string, options *Options) (*Client, error) {
 	if key == "" {
 		return nil, errors.New("API key is required")
 	}

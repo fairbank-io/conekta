@@ -11,7 +11,7 @@ Pure Go [Conekta](https://conectka.com) client implementation.
 
 ```go
 // Start a new client instance with default options
-client, err := conekta.New("API_KEY", nil)
+client, err := conekta.NewClient("API_KEY", nil)
 
 // Create new customer
 testCustomer := &Customer{

@@ -166,7 +166,7 @@ type Charge struct {
 	OrderID string `json:"order_id,omitempty"`
 
 	// Payment method of the charge
-	PaymentMethod string `json:"payment_method,omitempty"`
+	PaymentMethod Card `json:"payment_method,omitempty"`
 
 	// Date of the charge's creation
 	CreatedAt uint32 `json:"created_at,omitempty"`
@@ -444,4 +444,30 @@ type PlanUpdate struct {
 
 	// Charge's amount in cents
 	Amount uint32 `json:"amount,omitempty"`
+}
+
+// Card enable to charge orders directly to a user plastic card
+// PaymentSource available documentation is incomplete
+// https://developers.conekta.com/api?language=bash#payment-source
+type Card struct {
+	// Object's class. In this case "payment_source"
+	Object string `json:"object,omitempty"`
+
+	// Payment source's type. At the time the only type supported is "card"
+	Type string `json:"type,omitempty"`
+
+	// Number of the card
+	Number string `json:"number,omitempty"`
+
+	// Expiration month of the card
+	ExpMonth string `json:"exp_month,omitempty"`
+
+	// Expiration year of the card
+	ExpYear string `json:"exp_year,omitempty"`
+
+	// Card's brand
+	Brand string `json:"brand,omitempty"`
+
+	// Card's holder name
+	Name string `json:"name,omitempty"`
 }

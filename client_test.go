@@ -7,13 +7,13 @@ import (
 
 func TestConektaClient(t *testing.T) {
 	// API key is required
-	_, err := New("", nil)
+	_, err := NewClient("", nil)
 	if err == nil {
 		t.Error("failed to detect missing API key")
 	}
 	
 	// Use the test key provided in the public documentation
-	client, _ := New("key_eYvWV7gSDkNYXsmr", nil)
+	client, _ := NewClient("key_eYvWV7gSDkNYXsmr", nil)
 
 	t.Run("Plans", func(t *testing.T) {
 		testPlan := &Plan{
@@ -148,6 +148,124 @@ func TestConektaClient(t *testing.T) {
 			if err := client.Customers.Delete(testCustomer.ID); err != nil {
 				t.Error(err.(*APIError).Details[0].DebugMessage)
 			}
+		})
+	})
+	
+	t.Run("Oders", func(t *testing.T) {
+		// Create temporary test customer
+		testCustomer := &Customer{
+			Name:      "jose",
+			Phone:     "+5215542537676",
+			Corporate: false,
+			Email:     "jose@mail.com",
+		}
+		if err := client.Customers.Create(testCustomer); err != nil {
+			t.Error(err.(*APIError).Details[0].DebugMessage)
+		}
+		defer client.Customers.Delete(testCustomer.ID)
+
+		testOrder := &Order{
+			Object: "order",
+			Currency: "MXN",
+			CustomerInfo: CustomerInfo{
+				CustomerID: testCustomer.ID,
+			},
+			LineItems: []LineItem{
+				{
+					Name: "test digital item",
+					Quantity: 1,
+					UnitPrice: 5000,
+				},
+			},
+			Charges: []Charge{
+				{
+					Object: "charge",
+					Currency: "MXN",
+					PaymentMethod: Card{
+						Object: "payment_source",
+						Type: "card",
+						ExpMonth: "09",
+						ExpYear: "19",
+						Number: "4242424242424242",
+						Name: "Rick Sanchez",
+					},
+				},
+			},
+			ShippingContact: ShippingContact{
+				Address: Address{
+					Street1:    "calle 6 910",
+					PostalCode: "94510",
+					Country:    "MX",
+					State:      "Veracruz",
+					City:       "Cordoba",
+				},
+			},
+		}
+
+		t.Run("Create", func(t *testing.T) {
+			err := client.Orders.Create(testOrder)
+			if err != nil {
+				t.Error(err.(*APIError).Details[0].DebugMessage)
+			}
+		})
+
+		t.Run("Update", func(t *testing.T) {
+			testOrder.DiscountLines = []DiscountLine{
+				{
+					Amount: 1000,
+					Type: "campaign",
+				},
+			}
+			err := client.Orders.Update(testOrder)
+			if err == nil {
+				t.Error("order should not be able to be updated")
+			}
+		})
+
+		t.Run("Capture", func(t *testing.T) {
+			err := client.Orders.Capture(testOrder.ID)
+			if err == nil {
+				t.Error("order should not be able to be captured")
+			}
+		})
+
+		t.Run("Refund", func(t *testing.T) {
+			err := client.Orders.Refund(testOrder.ID, &Refund{Reason:"other"})
+			if err != nil {
+				t.Error(err.(*APIError).Details[0].DebugMessage)
+			}
+		})
+		
+		t.Run("LineItem", func(t *testing.T) {
+			itemID := ""
+			t.Run("Create", func(t *testing.T) {
+				itemID, err = client.Orders.CreateLineItem(testOrder.ID, &LineItem{
+					Name: "another dummy item",
+					Quantity: 1,
+					UnitPrice: 2000,
+				})
+				if err != nil {
+					t.Error(err.(*APIError).Details[0].DebugMessage)
+				}
+			})
+
+			t.Run("Update", func(t *testing.T) {
+				err = client.Orders.UpdateLineItem(testOrder.ID, &LineItem{
+					ID: itemID,
+					Quantity: 2,
+					UnitPrice: 2000,
+				})
+				if err != nil {
+					t.Error(err.(*APIError).Details[0].DebugMessage)
+				}
+			})
+
+			t.Run("Delete", func(t *testing.T) {
+				err := client.Orders.DeleteLineItem(testOrder.ID, itemID)
+				if err != nil {
+					t.Error(err.(*APIError).Details[0].DebugMessage)
+				}
+			})
 		})
 	})
 }
