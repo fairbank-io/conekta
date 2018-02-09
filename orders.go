@@ -151,3 +151,45 @@ func (oc *ordersClient) DeleteDiscountLine(orderID, discountID string) error {
 	})
 	return err
 }
+
+// Creates a new Tax Line
+// https://developers.conekta.com/api?language=bash#create-tax-line
+func (oc *ordersClient) CreateTaxLine(orderID string, tax *TaxLine) (string, error) {
+	res, err := oc.c.request(&requestOptions{
+		endpoint: baseUrl + path.Join("orders", orderID, "tax_lines"),
+		method:   http.MethodPost,
+		data:     tax,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	var info = map[string]interface{}{}
+	json.Unmarshal(res, &info)
+	return info["id"].(string), nil
+}
+
+// Updates an existing tax line
+// https://developers.conekta.com/api?language=bash#update-tax-line
+func (oc *ordersClient) UpdateTaxLine(orderID string, tax *TaxLine) error {
+	_, err := oc.c.request(&requestOptions{
+		endpoint: baseUrl + path.Join("orders", orderID, "tax_lines", tax.ID),
+		method:   http.MethodPut,
+		data:     tax,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Deletes an existing tax line
+// https://developers.conekta.com/api?language=bash#delete-tax-line
+func (oc *ordersClient) DeleteTaxLine(orderID, taxID string) error {
+	_, err := oc.c.request(&requestOptions{
+		endpoint: baseUrl + path.Join("orders", orderID, "tax_lines", taxID),
+		method:   http.MethodDelete,
+		data:     taxID,
+	})
+	return err
+}

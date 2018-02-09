@@ -300,5 +300,36 @@ func TestConektaClient(t *testing.T) {
 				}
 			})
 		})
+		
+		t.Run("TaxLine", func(t *testing.T) {
+			taxID := ""
+			t.Run("Create", func(t *testing.T) {
+				taxID, err = client.Orders.CreateTaxLine(testOrder.ID, &TaxLine{
+					Amount: 150,
+					Description: "IVA",
+				})
+				if err != nil {
+					t.Error(err.(*APIError).Details[0].DebugMessage)
+				}
+			})
+
+			t.Run("Update", func(t *testing.T) {
+				err = client.Orders.UpdateTaxLine(testOrder.ID, &TaxLine{
+					ID: taxID,
+					Amount: 160,
+					Description: "IVA",
+				})
+				if err != nil {
+					t.Error(err.(*APIError).Details[0].DebugMessage)
+				}
+			})
+
+			t.Run("Delete", func(t *testing.T) {
+				err := client.Orders.DeleteTaxLine(testOrder.ID, taxID)
+				if err != nil {
+					t.Error(err.(*APIError).Details[0].DebugMessage)
+				}
+			})
+		})
 	})
 }
