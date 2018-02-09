@@ -109,3 +109,45 @@ func (oc *ordersClient) DeleteLineItem(orderID, itemID string) error {
 	})
 	return err
 }
+
+// Creates a new Discount Line
+// https://developers.conekta.com/api?language=bash#create-discount-line
+func (oc *ordersClient) CreateDiscountLine(orderID string, discount *DiscountLine) (string, error) {
+	res, err := oc.c.request(&requestOptions{
+		endpoint: baseUrl + path.Join("orders", orderID, "discount_lines"),
+		method:   http.MethodPost,
+		data:     discount,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	var info = map[string]interface{}{}
+	json.Unmarshal(res, &info)
+	return info["id"].(string), nil
+}
+
+// Updates an existing Discount Line
+// https://developers.conekta.com/api?language=bash#update-discount-line
+func (oc *ordersClient) UpdateDiscountLine(orderID string, discount *DiscountLine) error {
+	_, err := oc.c.request(&requestOptions{
+		endpoint: baseUrl + path.Join("orders", orderID, "discount_lines", discount.ID),
+		method:   http.MethodPut,
+		data:     discount,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Deletes an existing Discount Line
+// https://developers.conekta.com/api?language=bash#delete-discount-line
+func (oc *ordersClient) DeleteDiscountLine(orderID, discountID string) error {
+	_, err := oc.c.request(&requestOptions{
+		endpoint: baseUrl + path.Join("orders", orderID, "discount_lines", discountID),
+		method:   http.MethodDelete,
+		data:     discountID,
+	})
+	return err
+}

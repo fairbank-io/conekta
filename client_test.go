@@ -164,6 +164,7 @@ func TestConektaClient(t *testing.T) {
 		}
 		defer client.Customers.Delete(testCustomer.ID)
 
+		// Sample temporary order
 		testOrder := &Order{
 			Object: "order",
 			Currency: "MXN",
@@ -262,6 +263,38 @@ func TestConektaClient(t *testing.T) {
 
 			t.Run("Delete", func(t *testing.T) {
 				err := client.Orders.DeleteLineItem(testOrder.ID, itemID)
+				if err != nil {
+					t.Error(err.(*APIError).Details[0].DebugMessage)
+				}
+			})
+		})
+
+		t.Run("DiscountLine", func(t *testing.T) {
+			discountID := ""
+			t.Run("Create", func(t *testing.T) {
+				discountID, err = client.Orders.CreateDiscountLine(testOrder.ID, &DiscountLine{
+					Amount: 1000,
+					Type: "coupon",
+					Code: "foo-bar",
+				})
+				if err != nil {
+					t.Error(err.(*APIError).Details[0].DebugMessage)
+				}
+			})
+
+			t.Run("Update", func(t *testing.T) {
+				err = client.Orders.UpdateDiscountLine(testOrder.ID, &DiscountLine{
+					ID: discountID,
+					Amount: 1500,
+					Type: "coupon",
+				})
+				if err != nil {
+					t.Error(err.(*APIError).Details[0].DebugMessage)
+				}
+			})
+
+			t.Run("Delete", func(t *testing.T) {
+				err := client.Orders.DeleteDiscountLine(testOrder.ID, discountID)
 				if err != nil {
 					t.Error(err.(*APIError).Details[0].DebugMessage)
 				}
