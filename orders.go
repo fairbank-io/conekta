@@ -193,3 +193,45 @@ func (oc *ordersClient) DeleteTaxLine(orderID, taxID string) error {
 	})
 	return err
 }
+
+// Creates a new Shipping Line for an existing order
+// https://developers.conekta.com/api?language=bash#create-shipping-line
+func (oc *ordersClient) CreateShippingLine(orderID string, line *ShippingLine) (string, error) {
+	res, err := oc.c.request(&requestOptions{
+		endpoint: baseUrl + path.Join("orders", orderID, "shipping_lines"),
+		method:   http.MethodPost,
+		data:     line,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	var info = map[string]interface{}{}
+	json.Unmarshal(res, &info)
+	return info["id"].(string), nil
+}
+
+// Updates an existing Shipping Line for an existing order
+// https://developers.conekta.com/api?language=bash#update-shipping-line
+func (oc *ordersClient) UpdateShippingLine(orderID string, line *ShippingLine) error {
+	_, err := oc.c.request(&requestOptions{
+		endpoint: baseUrl + path.Join("orders", orderID, "shipping_lines", line.ID),
+		method:   http.MethodPut,
+		data:     line,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Deletes an existing Shipping Line for an existing order
+// https://developers.conekta.com/api?language=bash#delete-shipping-line
+func (oc *ordersClient) DeleteShippingLine(orderID, lineID string) error {
+	_, err := oc.c.request(&requestOptions{
+		endpoint: baseUrl + path.Join("orders", orderID, "shipping_lines", lineID),
+		method:   http.MethodDelete,
+		data:     lineID,
+	})
+	return err
+}

@@ -331,5 +331,37 @@ func TestConektaClient(t *testing.T) {
 				}
 			})
 		})
+
+		t.Run("ShippingLine", func(t *testing.T) {
+			shippingID := ""
+			t.Run("Create", func(t *testing.T) {
+				shippingID, err = client.Orders.CreateShippingLine(testOrder.ID, &ShippingLine{
+					Amount: 150,
+					Carrier: "UPS",
+					TrackingNumber: "foo-bar-123",
+					Method: "ground",
+				})
+				if err != nil {
+					t.Error(err.(*APIError).Details[0].DebugMessage)
+				}
+			})
+
+			t.Run("Update", func(t *testing.T) {
+				err = client.Orders.UpdateShippingLine(testOrder.ID, &ShippingLine{
+					ID: shippingID,
+					Method: "air",
+				})
+				if err != nil {
+					t.Error(err.(*APIError).Details[0].DebugMessage)
+				}
+			})
+
+			t.Run("Delete", func(t *testing.T) {
+				err := client.Orders.DeleteShippingLine(testOrder.ID, shippingID)
+				if err != nil {
+					t.Error(err.(*APIError).Details[0].DebugMessage)
+				}
+			})
+		})
 	})
 }
