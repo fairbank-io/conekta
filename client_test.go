@@ -11,7 +11,7 @@ func TestConektaClient(t *testing.T) {
 	if err == nil {
 		t.Error("failed to detect missing API key")
 	}
-	
+
 	// Use the test key provided in the public documentation
 	client, _ := NewClient("key_eYvWV7gSDkNYXsmr", nil)
 
@@ -150,7 +150,7 @@ func TestConektaClient(t *testing.T) {
 			}
 		})
 	})
-	
+
 	t.Run("Oders", func(t *testing.T) {
 		// Create temporary test customer
 		testCustomer := &Customer{
@@ -166,29 +166,29 @@ func TestConektaClient(t *testing.T) {
 
 		// Sample temporary order
 		testOrder := &Order{
-			Object: "order",
+			Object:   "order",
 			Currency: "MXN",
 			CustomerInfo: CustomerInfo{
 				CustomerID: testCustomer.ID,
 			},
 			LineItems: []LineItem{
 				{
-					Name: "test digital item",
-					Quantity: 1,
+					Name:      "test digital item",
+					Quantity:  1,
 					UnitPrice: 5000,
 				},
 			},
 			Charges: []Charge{
 				{
-					Object: "charge",
+					Object:   "charge",
 					Currency: "MXN",
 					PaymentMethod: Card{
-						Object: "payment_source",
-						Type: "card",
+						Object:   "payment_source",
+						Type:     "card",
 						ExpMonth: "09",
-						ExpYear: "19",
-						Number: "4242424242424242",
-						Name: "Rick Sanchez",
+						ExpYear:  "19",
+						Number:   "4242424242424242",
+						Name:     "Rick Sanchez",
 					},
 				},
 			},
@@ -214,7 +214,7 @@ func TestConektaClient(t *testing.T) {
 			testOrder.DiscountLines = []DiscountLine{
 				{
 					Amount: 1000,
-					Type: "campaign",
+					Type:   "campaign",
 				},
 			}
 			err := client.Orders.Update(testOrder)
@@ -231,18 +231,18 @@ func TestConektaClient(t *testing.T) {
 		})
 
 		t.Run("Refund", func(t *testing.T) {
-			err := client.Orders.Refund(testOrder.ID, &Refund{Reason:"other"})
+			err := client.Orders.Refund(testOrder.ID, &Refund{Reason: "other"})
 			if err != nil {
 				t.Error(err.(*APIError).Details[0].DebugMessage)
 			}
 		})
-		
+
 		t.Run("LineItem", func(t *testing.T) {
 			itemID := ""
 			t.Run("Create", func(t *testing.T) {
 				itemID, err = client.Orders.CreateLineItem(testOrder.ID, &LineItem{
-					Name: "another dummy item",
-					Quantity: 1,
+					Name:      "another dummy item",
+					Quantity:  1,
 					UnitPrice: 2000,
 				})
 				if err != nil {
@@ -252,8 +252,8 @@ func TestConektaClient(t *testing.T) {
 
 			t.Run("Update", func(t *testing.T) {
 				err = client.Orders.UpdateLineItem(testOrder.ID, &LineItem{
-					ID: itemID,
-					Quantity: 2,
+					ID:        itemID,
+					Quantity:  2,
 					UnitPrice: 2000,
 				})
 				if err != nil {
@@ -274,8 +274,8 @@ func TestConektaClient(t *testing.T) {
 			t.Run("Create", func(t *testing.T) {
 				discountID, err = client.Orders.CreateDiscountLine(testOrder.ID, &DiscountLine{
 					Amount: 1000,
-					Type: "coupon",
-					Code: "foo-bar",
+					Type:   "coupon",
+					Code:   "foo-bar",
 				})
 				if err != nil {
 					t.Error(err.(*APIError).Details[0].DebugMessage)
@@ -284,9 +284,9 @@ func TestConektaClient(t *testing.T) {
 
 			t.Run("Update", func(t *testing.T) {
 				err = client.Orders.UpdateDiscountLine(testOrder.ID, &DiscountLine{
-					ID: discountID,
+					ID:     discountID,
 					Amount: 1500,
-					Type: "coupon",
+					Type:   "coupon",
 				})
 				if err != nil {
 					t.Error(err.(*APIError).Details[0].DebugMessage)
@@ -300,12 +300,12 @@ func TestConektaClient(t *testing.T) {
 				}
 			})
 		})
-		
+
 		t.Run("TaxLine", func(t *testing.T) {
 			taxID := ""
 			t.Run("Create", func(t *testing.T) {
 				taxID, err = client.Orders.CreateTaxLine(testOrder.ID, &TaxLine{
-					Amount: 150,
+					Amount:      150,
 					Description: "IVA",
 				})
 				if err != nil {
@@ -315,8 +315,8 @@ func TestConektaClient(t *testing.T) {
 
 			t.Run("Update", func(t *testing.T) {
 				err = client.Orders.UpdateTaxLine(testOrder.ID, &TaxLine{
-					ID: taxID,
-					Amount: 160,
+					ID:          taxID,
+					Amount:      160,
 					Description: "IVA",
 				})
 				if err != nil {
@@ -336,10 +336,10 @@ func TestConektaClient(t *testing.T) {
 			shippingID := ""
 			t.Run("Create", func(t *testing.T) {
 				shippingID, err = client.Orders.CreateShippingLine(testOrder.ID, &ShippingLine{
-					Amount: 150,
-					Carrier: "UPS",
+					Amount:         150,
+					Carrier:        "UPS",
 					TrackingNumber: "foo-bar-123",
-					Method: "ground",
+					Method:         "ground",
 				})
 				if err != nil {
 					t.Error(err.(*APIError).Details[0].DebugMessage)
@@ -348,7 +348,7 @@ func TestConektaClient(t *testing.T) {
 
 			t.Run("Update", func(t *testing.T) {
 				err = client.Orders.UpdateShippingLine(testOrder.ID, &ShippingLine{
-					ID: shippingID,
+					ID:     shippingID,
 					Method: "air",
 				})
 				if err != nil {

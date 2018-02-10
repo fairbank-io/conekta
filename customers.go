@@ -6,12 +6,69 @@ import (
 	"path"
 )
 
+// Defines the public interface required to access available 'customers' methods
+type CustomersAPI interface {
+	// Creates a new customer
+	// https://developers.conekta.com/api?language=bash#create-customer
+	Create(customer *Customer) error
+
+	// Updates a existing customer
+	// https://developers.conekta.com/api?language=bash#update-customer
+	Update(customer *Customer) error
+
+	// Deletes a existing customer
+	// https://developers.conekta.com/api?language=bash#capture-order
+	Delete(customerID string) error
+
+	// Creates new payment source
+	// https://developers.conekta.com/api?language=bash#payment-source
+	CreatePaymentSource(customerID, tokenID string) error
+
+	// Updates existing payment source
+	// https://developers.conekta.com/api?language=bash#update-payment-source
+	UpdatePaymentSource(customerID string, update *PaymentSourceUpdate) error
+
+	// Deletes existing payment source
+	// https://developers.conekta.com/api?language=bash#delete-payment-source
+	DeletePaymentSource(customerID, sourceID string) error
+
+	// Creates a new Shipping Contact for an existing customer
+	// https://developers.conekta.com/api?language=bash#create-shipping-contact-customer
+	CreateShippingContact(customerID string, contact *ShippingContact) error
+
+	// Updates an existing Shipping Contact
+	// https://developers.conekta.com/api?language=bash#update-shipping-contact
+	UpdateShippingContact(customerID string, contact *ShippingContact) error
+
+	// Deletes an existing Shipping Contact
+	// https://developers.conekta.com/api?language=bash#update-shipping-contact
+	DeleteShippingContact(customerID, contactID string) error
+
+	// Creates a new subscription using tokenized data
+	// https://developers.conekta.com/api?language=bash#create-subscription
+	CreateSubscription(customer *Customer, planID, cardID string) error
+
+	// Updates a subscription with a different card or plan
+	// https://developers.conekta.com/api?language=bash#update-subscription
+	UpdateSubscription(customer *Customer, planID, cardID string) error
+
+	// Pauses a subscription
+	// https://developers.conekta.com/api?language=bash#pause-subscription
+	PauseSubscription(customerID, subscriptionID string) error
+
+	// Resume a subscription
+	// https://developers.conekta.com/api?language=bash#resume-subscription
+	ResumeSubscription(customerID, subscriptionID string) error
+
+	// Cancel a subscription
+	// https://developers.conekta.com/api?language=bash#resume-subscription
+	CancelSubscription(customerID, subscriptionID string) error
+}
+
 type customersClient struct {
 	c *Client
 }
 
-// Creates a new customer
-// https://developers.conekta.com/api?language=bash#create-customer
 func (cc *customersClient) Create(customer *Customer) error {
 	b, err := cc.c.request(&requestOptions{
 		endpoint: baseUrl + "customers",
@@ -25,8 +82,6 @@ func (cc *customersClient) Create(customer *Customer) error {
 	return nil
 }
 
-// Updates a existing customer
-// https://developers.conekta.com/api?language=bash#update-customer
 func (cc *customersClient) Update(customer *Customer) error {
 	b, err := cc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("customers", customer.ID),
@@ -40,8 +95,6 @@ func (cc *customersClient) Update(customer *Customer) error {
 	return nil
 }
 
-// Deletes a existing customer
-// https://developers.conekta.com/api?language=bash#capture-order
 func (cc *customersClient) Delete(customerID string) error {
 	_, err := cc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("customers", customerID),
@@ -51,8 +104,6 @@ func (cc *customersClient) Delete(customerID string) error {
 	return err
 }
 
-// Creates new payment source
-// https://developers.conekta.com/api?language=bash#payment-source
 func (cc *customersClient) CreatePaymentSource(customerID, tokenID string) error {
 	data := map[string]string{
 		"type":     "card",
@@ -69,8 +120,6 @@ func (cc *customersClient) CreatePaymentSource(customerID, tokenID string) error
 	return nil
 }
 
-// Updates existing payment source
-// https://developers.conekta.com/api?language=bash#update-payment-source
 func (cc *customersClient) UpdatePaymentSource(customerID string, update *PaymentSourceUpdate) error {
 	_, err := cc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("customers", customerID, "payment_sources", update.ID),
@@ -80,8 +129,6 @@ func (cc *customersClient) UpdatePaymentSource(customerID string, update *Paymen
 	return err
 }
 
-// Deletes existing payment source
-// https://developers.conekta.com/api?language=bash#delete-payment-source
 func (cc *customersClient) DeletePaymentSource(customerID, sourceID string) error {
 	_, err := cc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("customers", customerID, "payment_sources", sourceID),
@@ -91,8 +138,6 @@ func (cc *customersClient) DeletePaymentSource(customerID, sourceID string) erro
 	return err
 }
 
-// Creates a new Shipping Contact for an existing customer
-// https://developers.conekta.com/api?language=bash#create-shipping-contact-customer
 func (cc *customersClient) CreateShippingContact(customerID string, contact *ShippingContact) error {
 	b, err := cc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("customers", customerID, "shipping_contacts"),
@@ -106,8 +151,6 @@ func (cc *customersClient) CreateShippingContact(customerID string, contact *Shi
 	return nil
 }
 
-// Updates an existing Shipping Contact
-// https://developers.conekta.com/api?language=bash#update-shipping-contact
 func (cc *customersClient) UpdateShippingContact(customerID string, contact *ShippingContact) error {
 	_, err := cc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("customers", customerID, "shipping_contacts", contact.ID),
@@ -120,8 +163,6 @@ func (cc *customersClient) UpdateShippingContact(customerID string, contact *Shi
 	return nil
 }
 
-// Deletes an existing Shipping Contact
-// https://developers.conekta.com/api?language=bash#update-shipping-contact
 func (cc *customersClient) DeleteShippingContact(customerID, contactID string) error {
 	_, err := cc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("customers", customerID, "shipping_contacts", contactID),
@@ -131,8 +172,6 @@ func (cc *customersClient) DeleteShippingContact(customerID, contactID string) e
 	return err
 }
 
-// Creates a new subscription using tokenized data
-// https://developers.conekta.com/api?language=bash#create-subscription
 func (cc *customersClient) CreateSubscription(customer *Customer, planID, cardID string) error {
 	data := map[string]string{"plan": planID}
 	if cardID != "" {
@@ -146,8 +185,6 @@ func (cc *customersClient) CreateSubscription(customer *Customer, planID, cardID
 	return err
 }
 
-// Updates a subscription with a different card or plan
-// https://developers.conekta.com/api?language=bash#update-subscription
 func (cc *customersClient) UpdateSubscription(customer *Customer, planID, cardID string) error {
 	data := map[string]string{"plan": planID}
 	if cardID != "" {
@@ -161,8 +198,6 @@ func (cc *customersClient) UpdateSubscription(customer *Customer, planID, cardID
 	return err
 }
 
-// Pauses a subscription
-// https://developers.conekta.com/api?language=bash#pause-subscription
 func (cc *customersClient) PauseSubscription(customerID, subscriptionID string) error {
 	_, err := cc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("customers", customerID, "subscription", "pause"),
@@ -172,8 +207,6 @@ func (cc *customersClient) PauseSubscription(customerID, subscriptionID string) 
 	return err
 }
 
-// Resume a subscription
-// https://developers.conekta.com/api?language=bash#resume-subscription
 func (cc *customersClient) ResumeSubscription(customerID, subscriptionID string) error {
 	_, err := cc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("customers", customerID, "subscription", "resume"),
@@ -183,8 +216,6 @@ func (cc *customersClient) ResumeSubscription(customerID, subscriptionID string)
 	return err
 }
 
-// Cancel a subscription
-// https://developers.conekta.com/api?language=bash#resume-subscription
 func (cc *customersClient) CancelSubscription(customerID, subscriptionID string) error {
 	_, err := cc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("customers", customerID, "subscription", "cancel"),

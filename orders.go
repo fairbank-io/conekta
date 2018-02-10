@@ -1,17 +1,82 @@
 package conekta
 
 import (
-	"path"
-	"net/http"
 	"encoding/json"
+	"net/http"
+	"path"
 )
+
+// Defines the public interface required to access available 'orders' methods
+type OrdersAPI interface {
+	// Creates a new order
+	// https://developers.conekta.com/api?language=bash#create-order
+	Create(order *Order) error
+
+	// Updates a existing order
+	// https://developers.conekta.com/api?language=bash#update-order
+	Update(order *Order) error
+
+	// Process a pre-authorized order
+	// https://developers.conekta.com/api?language=bash#capture-order
+	Capture(orderID string) error
+
+	// A Refund details the amount and reason why an order was refunded
+	// https://developers.conekta.com/api?language=bash#refund-order
+	Refund(orderID string, r *Refund) error
+
+	// Create a new line item
+	// https://developers.conekta.com/api?language=bash#create-line-item
+	CreateLineItem(orderID string, item *LineItem) (string, error)
+
+	// Updates a line item
+	// https://developers.conekta.com/api?language=bash#update-line-item
+	UpdateLineItem(orderID string, item *LineItem) error
+
+	// Deletes a line item
+	// https://developers.conekta.com/api?language=bash#delete-line-item
+	DeleteLineItem(orderID, itemID string) error
+
+	// Creates a new Discount Line
+	// https://developers.conekta.com/api?language=bash#create-discount-line
+	CreateDiscountLine(orderID string, discount *DiscountLine) (string, error)
+
+	// Updates an existing Discount Line
+	// https://developers.conekta.com/api?language=bash#update-discount-line
+	UpdateDiscountLine(orderID string, discount *DiscountLine) error
+
+	// Deletes an existing Discount Line
+	// https://developers.conekta.com/api?language=bash#delete-discount-line
+	DeleteDiscountLine(orderID, discountID string) error
+
+	// Creates a new Tax Line
+	// https://developers.conekta.com/api?language=bash#create-tax-line
+	CreateTaxLine(orderID string, tax *TaxLine) (string, error)
+
+	// Updates an existing tax line
+	// https://developers.conekta.com/api?language=bash#update-tax-line
+	UpdateTaxLine(orderID string, tax *TaxLine) error
+
+	// Deletes an existing tax line
+	// https://developers.conekta.com/api?language=bash#delete-tax-line
+	DeleteTaxLine(orderID, taxID string) error
+
+	// Creates a new Shipping Line for an existing order
+	// https://developers.conekta.com/api?language=bash#create-shipping-line
+	CreateShippingLine(orderID string, line *ShippingLine) (string, error)
+
+	// Updates an existing Shipping Line for an existing order
+	// https://developers.conekta.com/api?language=bash#update-shipping-line
+	UpdateShippingLine(orderID string, line *ShippingLine) error
+
+	// Deletes an existing Shipping Line for an existing order
+	// https://developers.conekta.com/api?language=bash#delete-shipping-line
+	DeleteShippingLine(orderID, lineID string) error
+}
 
 type ordersClient struct {
 	c *Client
 }
 
-// Creates a new order
-// https://developers.conekta.com/api?language=bash#create-order
 func (oc *ordersClient) Create(order *Order) error {
 	b, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + "orders",
@@ -25,8 +90,6 @@ func (oc *ordersClient) Create(order *Order) error {
 	return nil
 }
 
-// Updates a existing order
-// https://developers.conekta.com/api?language=bash#update-order
 func (oc *ordersClient) Update(order *Order) error {
 	b, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", order.ID),
@@ -40,8 +103,6 @@ func (oc *ordersClient) Update(order *Order) error {
 	return nil
 }
 
-// Process a pre-authorized order
-// https://developers.conekta.com/api?language=bash#capture-order
 func (oc *ordersClient) Capture(orderID string) error {
 	_, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "capture"),
@@ -54,8 +115,6 @@ func (oc *ordersClient) Capture(orderID string) error {
 	return nil
 }
 
-// A Refund details the amount and reason why an order was refunded
-// https://developers.conekta.com/api?language=bash#refund-order
 func (oc *ordersClient) Refund(orderID string, r *Refund) error {
 	_, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "refunds"),
@@ -68,8 +127,6 @@ func (oc *ordersClient) Refund(orderID string, r *Refund) error {
 	return nil
 }
 
-// Create a new line item
-// https://developers.conekta.com/api?language=bash#create-line-item
 func (oc *ordersClient) CreateLineItem(orderID string, item *LineItem) (string, error) {
 	res, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "line_items"),
@@ -85,8 +142,6 @@ func (oc *ordersClient) CreateLineItem(orderID string, item *LineItem) (string, 
 	return info["id"].(string), nil
 }
 
-// Updates a line item
-// https://developers.conekta.com/api?language=bash#update-line-item
 func (oc *ordersClient) UpdateLineItem(orderID string, item *LineItem) error {
 	_, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "line_items", item.ID),
@@ -99,8 +154,6 @@ func (oc *ordersClient) UpdateLineItem(orderID string, item *LineItem) error {
 	return nil
 }
 
-// Deletes a line item
-// https://developers.conekta.com/api?language=bash#delete-line-item
 func (oc *ordersClient) DeleteLineItem(orderID, itemID string) error {
 	_, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "line_items", itemID),
@@ -110,8 +163,6 @@ func (oc *ordersClient) DeleteLineItem(orderID, itemID string) error {
 	return err
 }
 
-// Creates a new Discount Line
-// https://developers.conekta.com/api?language=bash#create-discount-line
 func (oc *ordersClient) CreateDiscountLine(orderID string, discount *DiscountLine) (string, error) {
 	res, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "discount_lines"),
@@ -127,8 +178,6 @@ func (oc *ordersClient) CreateDiscountLine(orderID string, discount *DiscountLin
 	return info["id"].(string), nil
 }
 
-// Updates an existing Discount Line
-// https://developers.conekta.com/api?language=bash#update-discount-line
 func (oc *ordersClient) UpdateDiscountLine(orderID string, discount *DiscountLine) error {
 	_, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "discount_lines", discount.ID),
@@ -141,8 +190,6 @@ func (oc *ordersClient) UpdateDiscountLine(orderID string, discount *DiscountLin
 	return nil
 }
 
-// Deletes an existing Discount Line
-// https://developers.conekta.com/api?language=bash#delete-discount-line
 func (oc *ordersClient) DeleteDiscountLine(orderID, discountID string) error {
 	_, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "discount_lines", discountID),
@@ -152,8 +199,6 @@ func (oc *ordersClient) DeleteDiscountLine(orderID, discountID string) error {
 	return err
 }
 
-// Creates a new Tax Line
-// https://developers.conekta.com/api?language=bash#create-tax-line
 func (oc *ordersClient) CreateTaxLine(orderID string, tax *TaxLine) (string, error) {
 	res, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "tax_lines"),
@@ -169,8 +214,6 @@ func (oc *ordersClient) CreateTaxLine(orderID string, tax *TaxLine) (string, err
 	return info["id"].(string), nil
 }
 
-// Updates an existing tax line
-// https://developers.conekta.com/api?language=bash#update-tax-line
 func (oc *ordersClient) UpdateTaxLine(orderID string, tax *TaxLine) error {
 	_, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "tax_lines", tax.ID),
@@ -183,8 +226,6 @@ func (oc *ordersClient) UpdateTaxLine(orderID string, tax *TaxLine) error {
 	return nil
 }
 
-// Deletes an existing tax line
-// https://developers.conekta.com/api?language=bash#delete-tax-line
 func (oc *ordersClient) DeleteTaxLine(orderID, taxID string) error {
 	_, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "tax_lines", taxID),
@@ -194,8 +235,6 @@ func (oc *ordersClient) DeleteTaxLine(orderID, taxID string) error {
 	return err
 }
 
-// Creates a new Shipping Line for an existing order
-// https://developers.conekta.com/api?language=bash#create-shipping-line
 func (oc *ordersClient) CreateShippingLine(orderID string, line *ShippingLine) (string, error) {
 	res, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "shipping_lines"),
@@ -211,8 +250,6 @@ func (oc *ordersClient) CreateShippingLine(orderID string, line *ShippingLine) (
 	return info["id"].(string), nil
 }
 
-// Updates an existing Shipping Line for an existing order
-// https://developers.conekta.com/api?language=bash#update-shipping-line
 func (oc *ordersClient) UpdateShippingLine(orderID string, line *ShippingLine) error {
 	_, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "shipping_lines", line.ID),
@@ -225,8 +262,6 @@ func (oc *ordersClient) UpdateShippingLine(orderID string, line *ShippingLine) e
 	return nil
 }
 
-// Deletes an existing Shipping Line for an existing order
-// https://developers.conekta.com/api?language=bash#delete-shipping-line
 func (oc *ordersClient) DeleteShippingLine(orderID, lineID string) error {
 	_, err := oc.c.request(&requestOptions{
 		endpoint: baseUrl + path.Join("orders", orderID, "shipping_lines", lineID),

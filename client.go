@@ -3,13 +3,13 @@ package conekta
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"time"
-	"errors"
 )
 
 // Conekta API main endpoint
@@ -37,13 +37,13 @@ type Options struct {
 // Main service handler
 type Client struct {
 	// Methods related to 'orders' management
-	Orders *ordersClient
+	Orders OrdersAPI
 
 	// Methods related to 'customers' management
-	Customers *customersClient
+	Customers CustomersAPI
 
 	// Methods related to 'plans' management
-	Plans *plansClient
+	Plans PlansAPI
 
 	c          *http.Client
 	key        string
@@ -76,7 +76,7 @@ func NewClient(key string, options *Options) (*Client, error) {
 	if key == "" {
 		return nil, errors.New("API key is required")
 	}
-	
+
 	// If no options are provided, use default sane values
 	if options == nil {
 		options = defaultOptions()
