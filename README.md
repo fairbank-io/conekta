@@ -1,4 +1,4 @@
-# Electrum Client
+# Conekta API Client
 
 [![Build Status](https://travis-ci.org/fairbank-io/conekta.svg?branch=master)](https://travis-ci.org/fairbank-io/conekta)
 [![GoDoc](https://godoc.org/github.com/fairbank-io/conekta?status.svg)](https://godoc.org/github.com/fairbank-io/conekta)
